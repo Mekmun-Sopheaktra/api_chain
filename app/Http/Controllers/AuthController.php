@@ -80,11 +80,13 @@ class AuthController extends Controller
             // Temporary claim token
             $claimToken = Str::random(64);
 
-            Cache::put(
-                'claim_token_' . $claimToken,
-                $user->id,
-                now()->addMinutes(10)
-            );
+            //store to UserCredential
+            UserCredential::create([
+                'user_id' => $user->id,
+                'token' => $claimToken,
+                'status' => 'active',
+                'expires_at' => now()->addMinutes(10)
+            ]);
 
             DB::commit();
 
@@ -123,29 +125,32 @@ class AuthController extends Controller
     {
         $claimToken = $request->claim_token;
 
-        $userId = Cache::get('claim_token_' . $claimToken);
+        $credential = UserCredential::where('token', $claimToken)->first();
 
-        if (!$userId) {
+        if (!$credential) {
             return $this->failed(null, 'Claim Failed', 'Invalid or expired claim token', 400);
         }
 
-        $user = User::find($userId);
+        $user = $credential->user;
 
-        $credential = UserCredential::create([
-            'user_id' => $user->id,
-            'token' => bin2hex(random_bytes(32)),
-        ]);
+        if (!$user) {
+            return $this->failed(null, 'Claim Failed', 'User not found for this token', 404);
+        }
 
-        Cache::forget('claim_token_' . $claimToken);
+        $patient = Patient::where('user_id', $user->id)->first();
+
+        if (!$patient) {
+            return $this->failed(null, 'Claim Failed', 'Patient record not found', 404);
+        }
 
         return $this->success([
             'user' => [
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'nid' => $user->nid,
-                'phone' => $user->phone,
-                'role' => (int) $user->role,
-                'status' => (int) $user->status,
+                'first_name' => $patient->first_name,
+                'last_name'  => $patient->last_name,
+                'nid'        => $user->nid,
+                'phone'      => $user->phone,
+                'role'       => (int) $user->role,
+                'status'     => (int) $user->status,
             ],
             'token' => $credential->token
         ], 'Credential Issued', 'Credential successfully claimed', 200);

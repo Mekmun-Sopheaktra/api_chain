@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PatientRecordController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('patient')->group(function () {
