@@ -14,11 +14,11 @@ use Illuminate\Support\Facades\Log;
 class AuthController extends Controller
 {
     //index
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('patient')->get();
+        $users = User::with('patient')->paginate(10); // 10 per page
 
-        $data = $users->map(function ($user) {
+        $data = $users->getCollection()->map(function ($user) {
             return [
                 'id' => $user->id,
                 'first_name' => $user->patient ? $user->patient->first_name : null,
@@ -30,7 +30,10 @@ class AuthController extends Controller
             ];
         });
 
-        return $this->success($data, 'User List', 'List of all registered users', 200);
+        // replace collection with transformed data
+        $users->setCollection($data);
+
+        return $this->success($users, 'User List', 'List of all registered users', 200);
     }
 
     //show user details
