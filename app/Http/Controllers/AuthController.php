@@ -12,6 +12,47 @@ use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
+    //index
+    public function index()
+    {
+        $users = User::with('patient')->get();
+
+        $data = $users->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'first_name' => $user->patient ? $user->patient->first_name : null,
+                'last_name' => $user->patient ? $user->patient->last_name : null,
+                'nid' => $user->nid,
+                'phone' => $user->phone,
+                'role' => (int) $user->role,
+                'status' => (int) $user->status,
+            ];
+        });
+
+        return $this->success($data, 'User List', 'List of all registered users', 200);
+    }
+
+    //show user details
+    public function show($id)
+    {
+        $user = User::with('patient')->find($id);
+
+        if (!$user) {
+            return $this->failed(null, 'User Not Found', 'No user found with the given ID', 404);
+        }
+
+        $data = [
+            'id' => $user->id,
+            'first_name' => $user->patient ? $user->patient->first_name : null,
+            'last_name' => $user->patient ? $user->patient->last_name : null,
+            'nid' => $user->nid,
+            'phone' => $user->phone,
+            'role' => (int) $user->role,
+            'status' => (int) $user->status,
+        ];
+
+        return $this->success($data, 'User Details', 'Details of the specified user', 200);
+    }
     /*
     |--------------------------------------------------------------------------
     | 1️⃣ Register (Basic Info Only)

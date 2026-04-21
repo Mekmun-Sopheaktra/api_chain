@@ -8,6 +8,10 @@ Route::prefix('admin')->group(function () {
 
 
     Route::prefix('user')->group(function () {
+        // 2️⃣ List all users
+        Route::get('/', [AuthController::class, 'index'])->name('admin.user.index');
+        //show user details
+        Route::get('/{id}', [AuthController::class, 'show'])->name('admin.user.show');
         // 1️⃣ Register basic user (generate claim token / QR)
         Route::post('/register', [AuthController::class, 'register'])->name('admin.user.register');
 
