@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -164,6 +165,10 @@ class AuthController extends Controller
     */
     public function claimCredential(Request $request)
     {
+        //Log incoming request for debugging in channel transaction_log
+        Log::channel('transaction_log')->info('Claim Credential Request', [
+            'request' => $request->all()
+        ]);
         $claimToken = $request->claim_token;
 
         $credential = UserCredential::where('token', $claimToken)->first();
