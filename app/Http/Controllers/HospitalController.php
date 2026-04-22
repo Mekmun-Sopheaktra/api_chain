@@ -11,6 +11,53 @@ use Illuminate\Support\Facades\Log;
 
 class HospitalController extends Controller
 {
+    //login for hospital using medchain id and password
+    public function login(Request $request)
+    {
+        $validated = $request->validate([
+            'medchain_id' => 'required|string',
+        ]);
+
+        try {
+            $hospital = Hospital::where('medchain_id', $validated['medchain_id'])->first();
+            if (!$hospital) {
+                return $this->failed(
+                    null,
+                    'Login Failed',
+                    'Invalid MedChain ID or password.',
+                    401
+                );
+            }
+
+            // Check if the user exists and has the correct role
+            $user = User::where('id', $hospital->user_id)
+                        ->where('role', ConstUserRole::HOSPITAL)
+                        ->first();
+            if (!$user) {
+                return $this->failed(
+                    null,
+                    'Login Failed',
+                    'Invalid MedChain ID or password.',
+                    401
+                );
+            }
+
+            //combine data and hospital
+            $user->hospital = $hospital;
+
+            return $this->success($user, 'Login Successful', 'Hospital logged in successfully');
+
+        } catch (\Exception $e) {
+            Log::error('Hospital login error: ' . $e->getMessage());
+
+            return $this->failed(
+                null,
+                'Login Failed',
+                'An error occurred while trying to log in.',
+                500
+            );
+        }
+    }
     /**
      * Display a listing of hospitals.
      */
