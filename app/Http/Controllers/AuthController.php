@@ -16,7 +16,17 @@ class AuthController extends Controller
     //index
     public function index(Request $request)
     {
-        $users = User::with('patient')->paginate(10); // 10 per page
+         $search = $request->input('search');
+        $users = User::with('patient')
+            ->when($search, function ($query) use ($search) {
+                $query->where('nid', 'like', "%$search%")
+                    ->orWhere('phone', 'like', "%$search%")
+                    ->orWhereHas('patient', function ($q) use ($search) {
+                        $q->where('first_name', 'like', "%$search%")
+                            ->orWhere('last_name', 'like', "%$search%");
+                    });
+            })
+            ->paginate(10); // 10 per page
 
         $data = $users->getCollection()->map(function ($user) {
             return [
