@@ -5,10 +5,9 @@ use App\Http\Controllers\QRTokenController;
 use App\Http\Controllers\RecordController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('hospital')->group(function () {
+Route::post('/login', [HospitalController::class, 'login']);
 
-    //login as hospital
-    Route::post('/login', [HospitalController::class, 'login']);
+Route::prefix('hospital')->group(function () {
 
     //records
     Route::prefix('record')->group(function () {
@@ -20,7 +19,7 @@ Route::prefix('hospital')->group(function () {
     });
 
     //generate qr code for patient to scan and get claim token
-    Route::post('/generate', [QRTokenController::class, 'generate']);
+    Route::get('/generate', [QRTokenController::class, 'generate']);
 
     //refresh qr code for patient to scan and get claim token
     Route::post('/get-patient', [QRTokenController::class, 'getPatient']);

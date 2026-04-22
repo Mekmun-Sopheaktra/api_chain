@@ -57,7 +57,7 @@ class QRTokenController extends Controller
         }
 
         // 4. Get user
-        $user = User::find($qrToken->user_id);
+        $user = User::find($qrToken->user_id)->with('patient')->first();
 
         if (!$user) {
             return $this->failed(null, 'User not found', 'User', 404);

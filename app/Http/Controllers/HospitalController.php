@@ -15,11 +15,11 @@ class HospitalController extends Controller
     public function login(Request $request)
     {
         $validated = $request->validate([
-            'medchain_id' => 'required|string',
+            'id' => 'required|string',
         ]);
 
         try {
-            $hospital = Hospital::where('medchain_id', $validated['medchain_id'])->first();
+            $hospital = Hospital::where('medchain_id', $validated['id'])->first();
             if (!$hospital) {
                 return $this->failed(
                     null,
@@ -44,8 +44,9 @@ class HospitalController extends Controller
 
             //combine data and hospital
             $user->hospital = $hospital;
+            $token = $hospital->medchain_id;
 
-            return $this->success($user, 'Login Successful', 'Hospital logged in successfully');
+            return $this->successLogin($user, $token ,'Login Successful', 'Hospital logged in successfully');
 
         } catch (\Exception $e) {
             Log::error('Hospital login error: ' . $e->getMessage());
