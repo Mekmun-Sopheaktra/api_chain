@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\ConstUserRole;
 use App\Models\Patient;
 use App\Models\User;
 use App\Models\UserCredential;
@@ -18,6 +19,7 @@ class AuthController extends Controller
     {
          $search = $request->input('search');
         $users = User::with('patient')
+            ->where('role', ConstUserRole::PATIENT)
             ->when($search, function ($query) use ($search) {
                 $query->where('nid', 'like', "%$search%")
                     ->orWhere('phone', 'like', "%$search%")

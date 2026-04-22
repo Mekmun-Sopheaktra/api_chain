@@ -14,13 +14,21 @@ class HospitalController extends Controller
     /**
      * Display a listing of hospitals.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $hospitals = Hospital::with('license')->latest()->paginate(10);
+            $search = $request->input('search');
+
+            $hospitals = Hospital::with('license')
+                ->when($search, function ($query, $search) {
+                    $query->where('name', 'like', "%$search%")
+                          ->orWhere('address', 'like', "%$search%")
+                          ->orWhere('phone', 'like', "%$search%");
+                })
+                ->latest()->paginate(10);
 
             return $this->success([
-                'hospitals' => $hospitals
+                $hospitals
             ], 'Hospital List', 'Hospitals retrieved successfully');
 
         } catch (\Exception $e) {
