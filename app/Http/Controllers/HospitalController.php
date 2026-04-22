@@ -27,9 +27,7 @@ class HospitalController extends Controller
                 })
                 ->latest()->paginate(10);
 
-            return $this->success([
-                $hospitals
-            ], 'Hospital List', 'Hospitals retrieved successfully');
+            return $this->success($hospitals, 'Hospital List', 'Hospitals retrieved successfully');
 
         } catch (\Exception $e) {
             Log::error('Hospital index error: ' . $e->getMessage());
