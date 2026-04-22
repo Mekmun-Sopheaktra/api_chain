@@ -53,4 +53,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(QRToken::class);
     }
+
+    //relationship with hospital
+    public function hospital()
+    {
+        return $this->hasOne(Hospital::class);
+    }
 }

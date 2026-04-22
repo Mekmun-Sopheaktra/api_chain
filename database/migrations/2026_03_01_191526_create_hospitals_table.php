@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('hospitals', function (Blueprint $table) {
             $table->id();
+            //user_id
+            $table->unsignedBigInteger('user_id')->unique();
             $table->string('medchain_id')->unique();
             //image
             $table->string('name');

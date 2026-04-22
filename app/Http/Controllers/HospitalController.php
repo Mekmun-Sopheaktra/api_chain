@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\ConstUserRole;
 use App\Models\Hospital;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -78,8 +80,16 @@ class HospitalController extends Controller
                 );
             }
 
+            //create user for hospital
+            $user = User::create([
+                'nid' => $validated['medchain_id'],
+                'phone' => $validated['phone'],
+                'role' => ConstUserRole::HOSPITAL,
+            ]);
+
             // Create hospital
             $hospital = Hospital::create([
+                'user_id' => $user->id,
                 'medchain_id' => $validated['medchain_id'],
                 'name' => $validated['name'],
                 'address' => $validated['address'],
