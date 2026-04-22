@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HospitalController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->group(function () {
 
+    //Dashboard route
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
     Route::prefix('user')->group(function () {
         // 2️⃣ List all users
