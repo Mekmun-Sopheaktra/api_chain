@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class HospitalController extends Controller
 {
@@ -112,7 +113,7 @@ class HospitalController extends Controller
 
         try {
             //medchain_id generation from license number and current timestamp
-            $validated['medchain_id'] = 'MEDCHAIN-' . strtoupper(uniqid()) . '-' . time();
+            $validated['medchain_id'] = 'MC-H-' . Str::upper(Str::random(10)) . '-' . time();
 
             // Upload image
             $imagePath = null;
@@ -167,10 +168,13 @@ class HospitalController extends Controller
                 ]);
             }
 
+            $bc = $this->registerHospital($hospital);
+
             DB::commit();
 
             return $this->success([
-                'hospital' => $hospital->load('license')
+                'hospital' => $hospital->load('license'),
+                'blockchain_response' => $bc
             ], 'Store Hospital', 'Hospital created successfully');
 
         } catch (\Exception $e) {
@@ -181,7 +185,7 @@ class HospitalController extends Controller
             return $this->failed(
                 'Failed to create hospital.',
                 'Store Hospital',
-                'An error occurred while creating the hospital.',
+                $e->getMessage(),
                 500
             );
         }

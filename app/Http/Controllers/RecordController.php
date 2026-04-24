@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Hospital;
+use App\Models\Patient;
 use App\Models\Record;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -37,8 +39,8 @@ class RecordController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'patient_id' => 'required|integer',
-            'hospital_id' => 'required|integer',
+            'patient_medchain_id' => 'required',
+            'hospital_medchain_id' => 'required',
             'assessment_date' => 'nullable|date',
             'physician_name' => 'nullable|string|max:255',
             'complement_by' => 'nullable|string|max:255',
@@ -58,10 +60,15 @@ class RecordController extends Controller
             );
         }
 
+        //find patient and hospital by medchain_id
+        $patientId = Patient::where('medchain_id', $validated['patient_medchain_id'])->value('id');
+
+        $hospitalId = Hospital::where('medchain_id', $validated['hospital_medchain_id'])->value('id');
+
         $record = Record::create([
             'record_id' => 'REC-' . Str::uuid(),
-            'patient_id' => $validated['patient_id'],
-            'hospital_id' => $validated['hospital_id'],
+            'patient_id' => $patientId,
+            'hospital_id' => $hospitalId,
             'assessment_date' => $validated['assessment_date'] ?? null,
             'physician_name' => $validated['physician_name'] ?? null,
             'complement_by' => $validated['complement_by'] ?? null,
@@ -70,6 +77,8 @@ class RecordController extends Controller
             'record_date' => $validated['record_date'] ?? null,
             'medical_record_files' => $imagePath,
         ]);
+
+        $bc = $this->registerRecord($record, $validated['patient_medchain_id']);
 
         return $this->success(
             $record,

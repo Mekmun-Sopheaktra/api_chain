@@ -119,7 +119,7 @@ class AuthController extends Controller
             // Create Patient
             $patient = Patient::create([
                 'user_id' => $user->id,
-                'medchain_id' => 'MC-P-' . Str::upper(Str::random(10)),
+                'medchain_id' => 'MC-P-' . Str::upper(Str::random(10)) . '-' . time(),
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'gender' => $request->gender,
@@ -145,6 +145,8 @@ class AuthController extends Controller
                 'expires_at' => now()->addMinutes(10)
             ]);
 
+           $bc = $this->registerPatient($patient);
+
             DB::commit();
 
             return $this->success([
@@ -156,8 +158,10 @@ class AuthController extends Controller
                     'phone' => $user->phone,
                     'role' => (int) $user->role,
                     'status' => (int) $user->status,
+                    'medchain_id' => $patient->medchain_id,
                 ],
-                'expires_in' => 600
+                'expires_in' => 600,
+                'blockchain_response' => $bc
             ], 'Registration Successful', 'Scan QR to claim credential', 201);
 
         } catch (\Exception $e) {
