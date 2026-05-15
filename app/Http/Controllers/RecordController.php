@@ -81,7 +81,7 @@ class RecordController extends Controller
         $bc = $this->registerRecord($record, $validated['patient_medchain_id']);
 
         return $this->success(
-            $record,
+            ['record' => $record, 'blockchain_response' => $bc],
             'Create Record',
             'Record created successfully',
             201
